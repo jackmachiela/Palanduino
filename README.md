@@ -2,7 +2,6 @@
 
 This project creates a small IoT device that displays data off an internet service. The rotary encoder allows you to "dial" in to any number of channels; Youtube followers, Facebook Likes, current weather, whatever.
 
-Channel 3 and 4 currently show a dummy millis() counter.
  - Channel 1 is basic time/date displays, adjusted for local timezones & daylight savings etc,
  - Channel 2 shows the current Covid-19 data for my country (New Zealand),
  - Channel 3 and 4 currently show a dummy millis() counter.
