@@ -11,7 +11,6 @@ The hardward I'm using, a cheap Chinese NodeMCU Arduino ESP8266 unit, has lots o
 Things to implement:
  - More channels
  - Add a button to the rotary switch
- - Flashing colon for time channel
  - Add an alarm system if important info is published on non-active channels
  - Warning system for previous step, via flashing warning on LCD, or separate flashing LED
 
