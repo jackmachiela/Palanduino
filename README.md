@@ -1,9 +1,18 @@
 # Palanduino
 
-This project creates a small IoT device that displays data off an internet service. Everything works so far, but the rotary encoder dial hasn't been implemented yet. I'll work on that over the weekends.
+This project creates a small IoT device that displays data off an internet service. The rotary encoder allows you to "dial" in to any number of channels; Youtube followers, Facebook Likes, current weather, whatever.
 
-Currently it only shows the current Covid-19 data for my country (New Zealand), but the idea is that eventually the rotary encoder allows you to "dial" in to any number of channels; Youtube followers, Facebook Likes, current weather, whatever.
+Channel 1 is basic time/date displays
+Channel 2 shows the current Covid-19 data for my country (New Zealand),
+Channel 3 and 4 currently show a dummy millis() counter.
 
-The hardward I'm using, a cheap Chinese NodeMCU Arduino ESP8266 unit, has one more available addressable pin (analog A0), but I want to have a good think about how to use that. I kind of wanted to add an LED to it, to warn that there are channels that need attention, but we'll see.
+The hardward I'm using, a cheap Chinese NodeMCU Arduino ESP8266 unit, has lots of potential feature I want to implement here.
 
-Full hardward documentation is contained within the code.
+Things to implement:
+ - More channels
+ - Add a button to the rotary switch
+ - Flashing colon for time channel
+ - Add an alarm system if important info is published on non-active channels
+ - Warning system for previous step, via flashing warning on LCD, or separate flashing LED
+
+Full hardward documentation (parts used and pinouts) is contained within the code.
