@@ -2,9 +2,10 @@
 
 This project creates a small IoT device that displays data off an internet service. The rotary encoder allows you to "dial" in to any number of channels; Youtube followers, Facebook Likes, current weather, whatever.
 
-Channel 1 is basic time/date displays
-Channel 2 shows the current Covid-19 data for my country (New Zealand),
 Channel 3 and 4 currently show a dummy millis() counter.
+ - Channel 1 is basic time/date displays, adjusted for local timezones & daylight savings etc,
+ - Channel 2 shows the current Covid-19 data for my country (New Zealand),
+ - Channel 3 and 4 currently show a dummy millis() counter.
 
 The hardward I'm using, a cheap Chinese NodeMCU Arduino ESP8266 unit, has lots of potential feature I want to implement here.
 
