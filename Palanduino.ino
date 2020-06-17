@@ -32,14 +32,14 @@
 
 // Libraries to include:
 #include <ESP8266HTTPClient.h>
-#include <WiFiManager.h>      // Using the Arduino Library Manager, install "WifiManager by tzapu" - https://github.com/tzapu/WiFiManager
+#include <WiFiManager.h>         // Using the Arduino Library Manager, install "WifiManager by tzapu" - https://github.com/tzapu/WiFiManager
 
-#include <ezTime.h>           // lib at https://github.com/ropg/ezTime, docs at https://awesomeopensource.com/project/ropg/ezTime
+#include <ezTime.h>              // lib at https://github.com/ropg/ezTime, docs at https://awesomeopensource.com/project/ropg/ezTime
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
-#include <MD_REncoder.h>      // Majic Designs Rotary Encoder Library    https://github.com/MajicDesigns/MD_REncoder
+#include <MD_REncoder.h>         // Majic Designs Rotary Encoder Library    https://github.com/MajicDesigns/MD_REncoder
 
 
 ///////////////////////// Globals
@@ -47,7 +47,7 @@
 
 // Define some wibbley wobbley timey wimey stuff
 Timezone localTimeZone;
-String TimeZoneDB = "Pacific/Auckland";      // See full list here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones 
+String TimeZoneDB = "Pacific/Auckland";              // See full list here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones 
 String localNtpServer = "nz.pool.ntp.org";           // See full list here: http://support.ntp.org/bin/view/Servers/WebHome
 bool showColon = true;
 
@@ -84,13 +84,6 @@ LiquidCrystal_I2C lcd(0x3F, 16, 2);
 // And some Channel stuff
   int totalChannels=4;             // Total number of available channels
   int currentChannel=1;            // Start on Channel 1
-
-
-
-
-
-
-
 
 
 void setup() {                    ///////////////////////////////////////////////////////////////////////////////////////////////// VOID SETUP
@@ -193,15 +186,7 @@ void loop() {                    ///////////////////////////////////////////////
       currentMillis = millis();
       if ((lastCheckedMillis==0) || ((currentMillis - lastCheckedMillis) > (interval*1000)))  {
   
-      if (currentChannel == 1) {                           //timeAndDate();                       //
-        interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
-        // Initialise the SNTP time synchro
-        //timeZone.setLocation(localTimeZone);
-        Serial.println("A:Local time: " + localTimeZone.dateTime());
-        lineOne = localTimeZone.dateTime("  h:i:s A   ");
-        lineTwo = localTimeZone.dateTime("D d M, Y");
-        Serial.println("B:Local time: " + localTimeZone.dateTime());
-      }
+      if (currentChannel == 1) timeAndDate();                       //Display current Timezone's time & date
       if (currentChannel == 2) channelNZCovid19();                  //Get updated New Zealand Covid-19 data
       if (currentChannel == 3) channelThree();                      //
       if (currentChannel == 4) channelFour();                       //
@@ -278,7 +263,16 @@ void updateLCD() {
 
 void timeAndDate() {
 
-  
+          interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
+        // Initialise the SNTP time synchro
+        //timeZone.setLocation(localTimeZone);
+        Serial.println("A:Local time: " + localTimeZone.dateTime());
+        showColon = !showColon;
+        if (showColon) lineOne = localTimeZone.dateTime("  h:i:s A   ");
+                  else lineOne = localTimeZone.dateTime("  h i s A   ");
+        lineTwo = localTimeZone.dateTime("D d M, Y");
+        Serial.println("B:Local time: " + localTimeZone.dateTime());
+
 }
 
 
