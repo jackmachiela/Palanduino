@@ -12,18 +12,18 @@
 // * 1x 360deg Rotary Encoder
 //
 //  The 1602A LCD Display hooks into the IIC/I2C 1602A 2004 Adapter Plate, which has four pins:
-// * IIC(01) GND  - MCU ground
-// * IIC(02) VCC  - MCU 5V(VV)
-// * IIC(03) VO   - MCU D3
-// * IIC(04) RS   - MCU D4
+// * IIC(01) GND    - MCU ground
+// * IIC(02) VCC    - MCU 5V(VV)
+// * IIC(03) SDA/VO - MCU D4
+// * IIC(04) SCL/RS - MCU D3
 //  NB - some displays come with the IIC/I2C module already connected - if not, get one and solder it on. The screen is so much easier to deal with on the I2C interface.
 //
 //  The Rotary Encoder:
-// * RE(5) GND  - MCU GND
+// * RE(1) CLK  - MCU D1
+// * RE(2) DT   - MCU D2
+// * RE(3) SW   - MCU D2             // Functionality not yet implemented
 // * RE(4) +    - MCU 5V(VV)
-// * RE(3)                                   (SW   - MCU D2)
-// * RE(2) DT   - MCU D1
-// * RE(1) CLK  - MCU D0
+// * RE(5) GND  - MCU GND
 //
 //  The NodeMCU (remaining pins), if using external PSU:
 // * MCU VV    - PSU +5v
