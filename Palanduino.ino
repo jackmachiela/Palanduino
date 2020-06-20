@@ -31,16 +31,13 @@
 //
 
 // Libraries to include:
-#include <ESP8266HTTPClient.h>
 #include <WiFiManager.h>         // Using the Arduino Library Manager, install "WifiManager by tzapu" - https://github.com/tzapu/WiFiManager
-
+#include <ESP8266HTTPClient.h>   // Once the connection to the internet is made, this library talks to actual servers
 #include <ezTime.h>              // lib at https://github.com/ropg/ezTime, docs at https://awesomeopensource.com/project/ropg/ezTime
-
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <ArduinoJson.h>
+#include <Wire.h>                // To use the I2C/IIC protocol to address the 1602A LCD display
+#include <LiquidCrystal_I2C.h>   // To talk to the actual 1602A LCD display
+#include <ArduinoJson.h>         // Used to talk to servers and parse their JSON data
 #include <MD_REncoder.h>         // Majic Designs Rotary Encoder Library    https://github.com/MajicDesigns/MD_REncoder
-
 
 ///////////////////////// Globals
 
@@ -52,12 +49,12 @@ String localNtpServer = "nz.pool.ntp.org";           // See full list here: http
 bool showColon = true;
 
 
-//  setDebug(INFO);  // Outputs NTP updates to serial monitor
-//  setServer(localNtpServer);
-//  Timezone timeZone;
-//  setInterval(30);    //ntp polling interval     - temp, remove when done
-//  timeZone.setLocation(localTimeZone);
-//  waitForSync();      //Make sure to start with accurate time
+
+//open weather map api key                                   // Get an account and set up an API key on: https://home.openweathermap.org/api_keys
+String weatherApiKey = "c3a8819c8940de27dd407d9e8b70a743";   // DO NOT PUBLISH THE KEY!!! (this is not actually my key, so don't bother)
+//the city you want the weather for
+String weatherLocation = "Wellington, NZ";
+
 
 
 // initialise the LCD instance
@@ -82,7 +79,7 @@ LiquidCrystal_I2C lcd(0x3F, 16, 2);
   unsigned long long currentMillis;
 
 // And some Channel stuff
-  int totalChannels=4;             // Total number of available channels
+  int totalChannels=5;             // Total number of available channels
   int currentChannel=1;            // Start on Channel 1
 
 
@@ -99,8 +96,8 @@ void setup() {                    //////////////////////////////////////////////
   // Initial welcome message
   // Restrict to 16 characters
   //         [ xxxxxxxxxxxxxxxx ]
-    lineOne = "   Palanduino   ";
-    lineTwo = "======== v4.0 ==";
+    lineOne = "   Palanduino";
+    lineTwo = "======== v5.0 ==";
                  // v1.0 was initial basic code, one channel (NZ Covid-19 data update)
                  // v1.1 changed the main structure and smoothed it out, ready for multi-channel
                  // v1.2 - Add Rotary Encoder
@@ -108,8 +105,8 @@ void setup() {                    //////////////////////////////////////////////
                  // v3.0 - Changed hardcoded WiFi details to WiFi Manager's on-the-fly configuration (safer!)
                  //        Also added clock and NTP libraries
                  // v4.0 - changed NTP library to EZTime
-                 //
-                 
+                 // v5.0 - Added channel 3 - weather forecast
+
 
   // Print the title to the screen
     updateLCD();
@@ -123,12 +120,8 @@ void setup() {                    //////////////////////////////////////////////
   setServer(localNtpServer);
   setInterval(30);    //ntp polling interval     - temp, remove when done
   waitForSync();      //Make sure to start with accurate time
-//  Timezone localTimeZone;
   localTimeZone.setLocation(TimeZoneDB);
 ///////////////////////////////////  localTimeZone.setDefault();   // ??????
-
-//  Timezone timeZone;
-//  timeZone.setLocation(localTimeZone);
 
 
   //checkNtpStatus();         // temp, remove when done
@@ -161,7 +154,7 @@ void loop() {                    ///////////////////////////////////////////////
     interval = 0;                               //Channel changed - reset straight away
     lastRotEncAction = millis();                // Set last action to current time
     
-    Serial.print("    currentChannel = ");
+    Serial.print("Current Channel = ");
     Serial.println(currentChannel);
 
   }
@@ -169,13 +162,14 @@ void loop() {                    ///////////////////////////////////////////////
   if ((lastRotEncAction + 1800) >= millis())       //if less than 3 seconds have passed since Rotatry encoder was used, display channel titles only
     {
 
-      lineOne = "Select Channel: ";
-      lineTwo = "                ";
+      lineOne = "Select Channel:";
+      lineTwo = "";
       
-      if (currentChannel == 1) lineTwo = "1: Time & Date  ";                  //
-      if (currentChannel == 2) lineTwo = "2: NZ Covid-19  ";                  //Get updated New Zealand Covid-19 data
-      if (currentChannel == 3) lineTwo = "3: Channel Three";                  //
-      if (currentChannel == 4) lineTwo = "4: Channel Four ";                  //
+      if (currentChannel == 1) lineTwo = "1:Time & Date";                     //Get current date & time based on NZ timezone
+      if (currentChannel == 2) lineTwo = "2:NZ Covid-19";                     //Get latest New Zealand Covid-19 data
+      if (currentChannel == 3) lineTwo = "3:Weather Report";                  //Get Wellington NZ weather forecast
+      if (currentChannel == 4) lineTwo = "4:Channel Four";                    // (dummy channel)
+      if (currentChannel == 5) lineTwo = "5:Channel Five";                    // (dummy channel)
       
       updateLCD();
 
@@ -186,10 +180,11 @@ void loop() {                    ///////////////////////////////////////////////
       currentMillis = millis();
       if ((lastCheckedMillis==0) || ((currentMillis - lastCheckedMillis) > (interval*1000)))  {
   
-      if (currentChannel == 1) timeAndDate();                       //Display current Timezone's time & date
+      if (currentChannel == 1) channelTimeAndDate();                //Display current Timezone's time & date
       if (currentChannel == 2) channelNZCovid19();                  //Get updated New Zealand Covid-19 data
-      if (currentChannel == 3) channelThree();                      //
-      if (currentChannel == 4) channelFour();                       //
+      if (currentChannel == 3) channelWeather();                    //Weather Report for Wellington, NZ [from OpenWeatherMap]
+      if (currentChannel == 4) channelFour();                       // (dummy channel)
+      if (currentChannel == 5) channelFive();                       // (dummy channel)
 
       lastCheckedMillis=millis();
     
@@ -208,7 +203,7 @@ void loop() {                    ///////////////////////////////////////////////
 
 void init_wifi() {
   // Connect to WiFi access point.
-    lineOne = "Connecting to   ";
+    lineOne = "Connecting to";
     lineTwo = "    LAN via WiFi";
     updateLCD();
 
@@ -223,23 +218,22 @@ void init_wifi() {
 
 
 
-
 void updateLCD() {
-//Serial.println("TEMP - lineOne" + lineOne);
-//Serial.println("TEMP - length" + lineOne.length());
+//lineOne = lineOne + "                ";
+//lineTwo = lineTwo + "                ";
 
-//  while ( lineOne.length() < 16 ) {                // crashes the arduino for some reason. Needs work.
-//    lineOne = lineOne + " ";
-//  }
-//  while ( lineTwo.length() < 16 ) {
-//    lineOne=lineTwo+" ";
-//  }
+
+
+  while ( lineOne.length() < 16 ) lineOne.concat(" ");     //Pad the strings to 16 chars long, to clear out previous messages
+  while ( lineTwo.length() < 16 ) lineTwo.concat(" ");     //Pad the strings to 16 chars long, to clear out previous messages
+  
   
   // Check if the data has been updated, otherwise don't bother updating the display
   if ((lineOne != prevLineOne) || (lineTwo != prevLineTwo)) {
 
     // Print a message to the LCD.
 //    lcd.clear();
+//    lcd.setCursor(0, 0); lcd.print(lineOne);
     lcd.setCursor(0, 0); lcd.print(lineOne);
     lcd.setCursor(0, 1); lcd.print(lineTwo);
 
@@ -253,23 +247,22 @@ void updateLCD() {
     // Set the previous lines as the current ones
     prevLineOne = lineOne;
     prevLineTwo = lineTwo;
-}
-  
+  }
 
 }
 
                     //////////////////////////////////////////////////////////////////////////////////////////////////////////// CHANNELS
 
 
-void timeAndDate() {
+void channelTimeAndDate() {
 
           interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
         // Initialise the SNTP time synchro
         //timeZone.setLocation(localTimeZone);
         Serial.println("A:Local time: " + localTimeZone.dateTime());
         showColon = !showColon;
-        if (showColon) lineOne = localTimeZone.dateTime("  h:i:s A   ");
-                  else lineOne = localTimeZone.dateTime("  h i s A   ");
+        if (showColon) lineOne = localTimeZone.dateTime(" h:i:s A");
+                  else lineOne = localTimeZone.dateTime(" h i s A");
         lineTwo = localTimeZone.dateTime("D d M, Y");
         Serial.println("B:Local time: " + localTimeZone.dateTime());
 
@@ -282,8 +275,8 @@ void timeAndDate() {
 void channelNZCovid19() {
   interval = 300;         // (in seconds) How often should I check this website for updates after the initial check
 
-    lineOne = "NZ Covid-19     ";
-    lineTwo = "Updating...     ";
+    lineOne = "NZ Covid-19";
+    lineTwo = "Updating...";
     updateLCD();
     
     delay(1000);
@@ -316,33 +309,123 @@ void channelNZCovid19() {
         long totalTests = doc["totalTests"];
         int testsPerOneMillion = doc["testsPerOneMillion"];
 
-      lineOne = "Cov-19 - Sick:" + String(active) + " ";
-      lineTwo = "Dead:" + String(deaths) + " Ok:" + String(recovered)+ " ";
+      lineOne = "Cov-19 - Sick:" + String(active);
+      lineTwo = "Dead:" + String(deaths) + " Ok:" + String(recovered);
 
-//      lastCheckedMillis=millis();
     }
     else
     {
       lineOne = "Cov-19 - Sick:??";
-      lineTwo = "Dead:?? Ok:???? ";
+      lineTwo = "Dead:?? Ok:????";
 
     }
     http.end(); 
 
-//  }
-
 }
 
-void channelThree() {
-      interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
 
-      lineOne = "Channel 3       ";
-      lineTwo = "Millis:" + String(millis()) + "     ";
+
+void channelWeather() {
+  interval = 900;         // (in seconds) How often should I check this website for updates after the initial check
+
+    lineOne = weatherLocation + ",";
+    lineTwo = "Weather update";
+    updateLCD();
+    
+    delay(1000);
+    HTTPClient http;
+    //GET directly from the URL (Dont use HTTPS) Modify the JSON Value as required!
+    http.begin("http://api.openweathermap.org/data/2.5/weather?q=" + weatherLocation + "&units=metric&appid=" + weatherApiKey);
+
+    int httpCode = http.GET();
+ 
+    if(httpCode > 0)
+    {
+      String payload = http.getString();
+
+      // NB. The following bit was (mostly) created using https://arduinojson.org/v6/assistant/ -Jack
+      const size_t capacity = JSON_ARRAY_SIZE(3) + 2*JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + 3*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 340;
+      DynamicJsonDocument doc(capacity);
+
+
+      deserializeJson(doc, payload);
+
+      float coord_lon = doc["coord"]["lon"]; // -0.13
+      float coord_lat = doc["coord"]["lat"]; // 51.51
+
+      JsonArray weather = doc["weather"];
+
+      JsonObject weather_0 = weather[0];
+      int weather_0_id = weather_0["id"]; // 301
+      const char* weather_0_main = weather_0["main"]; // "Drizzle"
+      const char* weather_0_description = weather_0["description"]; // "drizzle"
+      const char* weather_0_icon = weather_0["icon"]; // "09n"
+
+      JsonObject weather_1 = weather[1];
+      int weather_1_id = weather_1["id"]; // 701
+      const char* weather_1_main = weather_1["main"]; // "Mist"
+      const char* weather_1_description = weather_1["description"]; // "mist"
+      const char* weather_1_icon = weather_1["icon"]; // "50n"
+
+      JsonObject weather_2 = weather[2];
+      int weather_2_id = weather_2["id"]; // 741
+      const char* weather_2_main = weather_2["main"]; // "Fog"
+      const char* weather_2_description = weather_2["description"]; // "fog"
+      const char* weather_2_icon = weather_2["icon"]; // "50n"
+
+      const char* base = doc["base"]; // "stations"
+
+      JsonObject main = doc["main"];
+      float main_temp = main["temp"]; // 281.87
+      int main_pressure = main["pressure"]; // 1032
+      int main_humidity = main["humidity"]; // 100
+      float main_temp_min = main["temp_min"]; // 281.15
+      float main_temp_max = main["temp_max"]; // 283.15
+
+      int visibility = doc["visibility"]; // 2900
+
+      float wind_speed = doc["wind"]["speed"]; // 1.5
+
+      int clouds_all = doc["clouds"]["all"]; // 90
+
+      long dt = doc["dt"]; // 1483820400
+
+      JsonObject sys = doc["sys"];
+      int sys_type = sys["type"]; // 1
+      int sys_id = sys["id"]; // 5091
+      float sys_message = sys["message"]; // 0.0226
+      const char* sys_country = sys["country"]; // "GB"
+      long sys_sunrise = sys["sunrise"]; // 1483776245
+      long sys_sunset = sys["sunset"]; // 1483805443
+
+      long id = doc["id"]; // 2643743
+      const char* name = doc["name"]; // "London"
+      int cod = doc["cod"]; // 200
+
+      lineOne = String(weather_0_main) + ", " + String(weather_1_description);
+      lineTwo = "Temp:" + String((int(main_temp-0.5))+0.5) + ((char)223) + "C";
+
+    }
+    else
+    {
+      lineOne = "No Weather Data:";
+      lineTwo = "Couldn't connect";
+
+    }
+    http.end(); 
+
 }
 
 void channelFour() {
       interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
 
-      lineOne = "Channel 4       ";
-      lineTwo = "Millis:" + String(millis()) + "     ";
+      lineOne = "Channel 4";
+      lineTwo = "Millis:" + String(millis());
+}
+
+void channelFive() {
+      interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
+
+      lineOne = "Channel 5";
+      lineTwo = "Millis:" + String(millis());
 }
