@@ -15,9 +15,11 @@ This project creates a small IoT device that displays data off an internet servi
 The hardware I'm using is based on a cheap Chinese NodeMCU Arduino ESP8266 unit.
 
 Things to implement:
+
  - More channels
  - Add a button to the rotary switch
  - Add an alarm system if important info is published on non-active channels
  - Warning system for previous step, via flashing warning on LCD, or separate flashing LED
+ - Change String to Char - less buggy
 
 Full hardware documentation (parts used and pinouts) is contained within the code.
