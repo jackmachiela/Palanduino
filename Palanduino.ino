@@ -9,6 +9,7 @@
 //  Components:
 // * 1x Arduino/ESP8266 NodeMCU
 // * 1x 1602A LCD Display (2x16 chars). I'm using a 16-pin one - 14 pin versions should work with minor modifications.
+// * 1x IIC/I2C 1602A 2004 Adapter Plate for the 1602A screen.
 // * 1x 360deg Rotary Encoder
 //
 //  The 1602A LCD Display hooks into the IIC/I2C 1602A 2004 Adapter Plate, which has four pins:
@@ -16,12 +17,13 @@
 // * IIC(02) VCC    - MCU 5V(VV)
 // * IIC(03) SDA/VO - MCU D4
 // * IIC(04) SCL/RS - MCU D3
-//  NB - some displays come with the IIC/I2C module already connected - if not, get one and solder it on. The screen is so much easier to deal with on the I2C interface.
+//  NB - some displays come with the IIC/I2C module already connected - if not, get one and solder it on. The screen is
+//       so much easier to deal with on the I2C interface.
 //
 //  The Rotary Encoder:
 // * RE(1) CLK  - MCU D1
 // * RE(2) DT   - MCU D2
-// * RE(3) SW   - MCU D2             // Functionality not yet implemented
+// * RE(3) SW   - MCU D2             // Buton functionality not yet implemented
 // * RE(4) +    - MCU 5V(VV)
 // * RE(5) GND  - MCU GND
 //
@@ -33,7 +35,7 @@
 // Libraries to include:
 #include <WiFiManager.h>         // Using the Arduino Library Manager, install "WifiManager by tzapu" - https://github.com/tzapu/WiFiManager
 #include <ESP8266HTTPClient.h>   // Once the connection to the internet is made, this library talks to actual servers
-#include <ezTime.h>              // lib at https://github.com/ropg/ezTime, docs at https://awesomeopensource.com/project/ropg/ezTime
+#include <ezTime.h>              // Lib at https://github.com/ropg/ezTime, docs at https://awesomeopensource.com/project/ropg/ezTime
 #include <Wire.h>                // To use the I2C/IIC protocol to address the 1602A LCD display
 #include <LiquidCrystal_I2C.h>   // To talk to the actual 1602A LCD display
 #include <ArduinoJson.h>         // Used to talk to servers and parse their JSON data
@@ -50,10 +52,10 @@ bool showColon = true;
 
 
 
-//open weather map api key                                   // Get an account and set up an API key on: https://home.openweathermap.org/api_keys
+//open weather map api key                                   // Get a free account and set up an API key on: https://home.openweathermap.org/api_keys
 String weatherApiKey = "c3a8819c8940de27dd407d9e8b70a743";   // DO NOT PUBLISH THE KEY!!! (this is not actually my key, so don't bother)
 //the city you want the weather for
-String weatherLocation = "Wellington, NZ";
+String weatherLocation = "Wellington, NZ";                   // Make sure you have a valid city code - get it at http://www.openweathermap.org as well
 
 
 
@@ -69,18 +71,18 @@ LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
 
 //Define some vars for the Rotary Encoder (Channel Selector dial)
-  MD_REncoder rotEnc = MD_REncoder(D0, D1);      //RotEnc's DR, CLK pins
+  MD_REncoder rotEnc = MD_REncoder(D0, D1);                      //RotEnc's DR, CLK pins
   unsigned long long lastRotEncAction = 0;                       // Contains millis since last Rotary Encoder was clicked or rotated
 
 
 // Some vars to limit the rate of server interrogations (throttle - don't strangle the internet!)
-  int interval=1;                                  // each module will have its own interval, but start with 1 second
+  int interval=1;                                                // each module will have its own interval, but start with 1 second
   unsigned long long lastCheckedMillis;
   unsigned long long currentMillis;
 
 // And some Channel stuff
-  int totalChannels=5;             // Total number of available channels
-  int currentChannel=1;            // Start on Channel 1
+  int totalChannels=5;                                           // Total number of available channels
+  int currentChannel=1;                                          // Start on Channel 1
 
 
 void setup() {                    ///////////////////////////////////////////////////////////////////////////////////////////////// VOID SETUP
@@ -89,9 +91,9 @@ void setup() {                    //////////////////////////////////////////////
 
 
   // set up the LCD's number of columns and rows:
-  Wire.begin(2,0);      // set up a IIC instance
-  lcd.init();           // initialise the LCD display
-  lcd.backlight();      // switch on the backlight 
+  Wire.begin(2,0);                          // set up a IIC instance
+  lcd.init();                               // initialise the LCD display
+  lcd.backlight();                          // switch on the backlight 
 
   // Initial welcome message
   // Restrict to 16 characters
@@ -110,24 +112,17 @@ void setup() {                    //////////////////////////////////////////////
 
   // Print the title to the screen
     updateLCD();
-    delay(1500); // and give it a couple of seconds
+    delay(1500);                        // and give it a moment
   
 
   // Initialise the internet link (login to Wi-Fi)
   init_wifi();
   
-  setDebug(INFO);   // Outputs NTP updates to serial monitor
-  setServer(localNtpServer);
-  setInterval(30);    //ntp polling interval     - temp, remove when done
-  waitForSync();      //Make sure to start with accurate time
-  localTimeZone.setLocation(TimeZoneDB);
-///////////////////////////////////  localTimeZone.setDefault();   // ??????
-
-
-  //checkNtpStatus();         // temp, remove when done
-  Serial.println("[X] setup] UTC: " + UTC.dateTime());
-  Serial.println("[X] Local time: " + localTimeZone.dateTime());
-
+  setDebug(INFO);                                           // Outputs NTP updates to serial monitor
+  setServer(localNtpServer);                                // Go easy on the international NTP server and use a localised one instead
+  setInterval(30);                                          // NTP polling interval     - temp, remove when everything works
+  waitForSync();                                            // Make sure to start with accurate time
+  localTimeZone.setLocation(TimeZoneDB);                    // Set the default time to the local timezone
 
   // Initialise the Rotary Encoder
     rotEnc.begin();
@@ -135,50 +130,39 @@ void setup() {                    //////////////////////////////////////////////
 }
 
 void loop() {                    ///////////////////////////////////////////////////////////////////////////////////////////////// VOID LOOP
-//  Timezone localTimeZone;
-//  localTimeZone.setLocation(TimeZoneDB);
-
-//  Serial.println("[Y] Local time: " + localTimeZone.dateTime());
-
-  
-  // lastRotEncAction
   
   uint8_t rotEncReading = rotEnc.read();
-
-    if (rotEncReading)
-  {
+  if (rotEncReading)  {
 
     currentChannel=(currentChannel + (rotEncReading == DIR_CW ? 1 : -1));   // Add or subtract 1 to the current channel
     if (currentChannel > totalChannels) currentChannel = 1;                 // If it goes over the maximum available channel, reset to 1
     if (currentChannel < 1) currentChannel = totalChannels;                 // If it goes under the lowest available channel, reset to highest
-    interval = 0;                               //Channel changed - reset straight away
-    lastRotEncAction = millis();                // Set last action to current time
+    interval = 0;                                                           //Channel changed - reset straight away
+    lastRotEncAction = millis();                                            // Set last action to current time
     
     Serial.print("Current Channel = ");
     Serial.println(currentChannel);
 
   }
 
-  if ((lastRotEncAction + 1800) >= millis())       //if less than 3 seconds have passed since Rotatry encoder was used, display channel titles only
-    {
+  if ((lastRotEncAction + 1800) >= millis()) {              //if less than 3 seconds have passed since Rotatry encoder was used, display channel titles only
 
-      lineOne = "Select Channel:";
-      lineTwo = "";
-      
-      if (currentChannel == 1) lineTwo = "1:Time & Date";                     //Get current date & time based on NZ timezone
-      if (currentChannel == 2) lineTwo = "2:NZ Covid-19";                     //Get latest New Zealand Covid-19 data
-      if (currentChannel == 3) lineTwo = "3:Weather Report";                  //Get Wellington NZ weather forecast
-      if (currentChannel == 4) lineTwo = "4:Channel Four";                    // (dummy channel)
-      if (currentChannel == 5) lineTwo = "5:Channel Five";                    // (dummy channel)
-      
-      updateLCD();
+    lineOne = "Select Channel:";
+    lineTwo = "";
 
-    }
-  else
-    {
-      // Check if interval for this channel has been reached
-      currentMillis = millis();
-      if ((lastCheckedMillis==0) || ((currentMillis - lastCheckedMillis) > (interval*1000)))  {
+    if (currentChannel == 1) lineTwo = "1:Time & Date";                     //Get current date & time based on NZ timezone
+    if (currentChannel == 2) lineTwo = "2:NZ Covid-19";                     //Get latest New Zealand Covid-19 data
+    if (currentChannel == 3) lineTwo = "3:Weather Report";                  //Get Wellington NZ weather forecast
+    if (currentChannel == 4) lineTwo = "4:Channel Four";                    // (dummy channel)
+    if (currentChannel == 5) lineTwo = "5:Channel Five";                    // (dummy channel)
+      
+    updateLCD();
+
+  }
+  else {
+    // Check if interval for this channel has been reached
+    currentMillis = millis();
+    if ((lastCheckedMillis==0) || ((currentMillis - lastCheckedMillis) > (interval*1000)))  {
   
       if (currentChannel == 1) channelTimeAndDate();                //Display current Timezone's time & date
       if (currentChannel == 2) channelNZCovid19();                  //Get updated New Zealand Covid-19 data
@@ -194,24 +178,22 @@ void loop() {                    ///////////////////////////////////////////////
 
 
   updateLCD();
-  events();         // Check if any scheduled ntp events
+  events();                          // Check if any scheduled ntp events
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Functions
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// Other Functions
 
 void init_wifi() {
   // Connect to WiFi access point.
-    lineOne = "Connecting to";
-    lineTwo = "    LAN via WiFi";
-    updateLCD();
+  lineOne = "Connecting to";
+  lineTwo = "    LAN via WiFi";
+  updateLCD();
 
   // Start WiFi
-    WiFiManager wifiManager;
-    wifiManager.autoConnect("Palanduino_Install");        // <----------- Create Wifi LAN to install with, if not previously initialised
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("Palanduino_Install");        // <----------- Create Wifi LAN to install with, if not previously initialised
 
-    delay(1000);
+  delay(1000);
 
 }
 
@@ -219,21 +201,14 @@ void init_wifi() {
 
 
 void updateLCD() {
-//lineOne = lineOne + "                ";
-//lineTwo = lineTwo + "                ";
-
-
 
   while ( lineOne.length() < 16 ) lineOne.concat(" ");     //Pad the strings to 16 chars long, to clear out previous messages
   while ( lineTwo.length() < 16 ) lineTwo.concat(" ");     //Pad the strings to 16 chars long, to clear out previous messages
   
-  
   // Check if the data has been updated, otherwise don't bother updating the display
   if ((lineOne != prevLineOne) || (lineTwo != prevLineTwo)) {
 
-    // Print a message to the LCD.
-//    lcd.clear();
-//    lcd.setCursor(0, 0); lcd.print(lineOne);
+  // Print a message to the LCD.
     lcd.setCursor(0, 0); lcd.print(lineOne);
     lcd.setCursor(0, 1); lcd.print(lineTwo);
 
@@ -256,41 +231,36 @@ void updateLCD() {
 
 void channelTimeAndDate() {
 
-          interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
-        // Initialise the SNTP time synchro
-        //timeZone.setLocation(localTimeZone);
-        Serial.println("A:Local time: " + localTimeZone.dateTime());
-        showColon = !showColon;
-        if (showColon) lineOne = localTimeZone.dateTime(" h:i:s A");
-                  else lineOne = localTimeZone.dateTime(" h i s A");
-        lineTwo = localTimeZone.dateTime("D d M, Y");
-        Serial.println("B:Local time: " + localTimeZone.dateTime());
+  interval = 1;         // (in seconds) How often should I check this website for updates after the initial check
+
+  showColon = !showColon;
+  if (showColon) lineOne = localTimeZone.dateTime(" h:i:s A");           // flash one second with dots showing
+  else lineOne = localTimeZone.dateTime(" h i s A");                     // flash one second with dots not showing
+  
+  lineTwo = localTimeZone.dateTime("D d M, Y");
 
 }
-
-
-
 
 
 void channelNZCovid19() {
   interval = 300;         // (in seconds) How often should I check this website for updates after the initial check
 
-    lineOne = "NZ Covid-19";
-    lineTwo = "Updating...";
-    updateLCD();
+  lineOne = "NZ Covid-19";
+  lineTwo = "Updating...";
+  updateLCD();
     
-    delay(1000);
+  delay(1000);
 
-    HTTPClient http;
-    //GET directly from the URL (Dont use HTTPS) Modify the JSON Value as required!
-    http.begin("http://coronavirus-19-api.herokuapp.com/countries/New%20Zealand");
+  HTTPClient http;
+  //GET directly from the URL (Dont use HTTPS) Modify the JSON Value as required!
+  http.begin("http://coronavirus-19-api.herokuapp.com/countries/New%20Zealand");
 
-    int httpCode = http.GET();
-    if(httpCode > 0)
+  int httpCode = http.GET();
+  if(httpCode > 0)
     {
       String payload = http.getString();
 
-      // NB. The following bit was (mostly) created using https://arduinojson.org/v6/assistant/ -Jack
+      // NB. The following bit was (mostly) created using https://arduinojson.org/v6/assistant/
         const size_t capacity = JSON_OBJECT_SIZE(12) + 170;
         DynamicJsonDocument doc(capacity);
 
