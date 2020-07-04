@@ -7,25 +7,26 @@
 //           Channel credits: Corona Virus data API provided by Javier Aviles https://github.com/javieraviles
 //           
 //  Components:
-// * 1x Arduino/ESP8266 NodeMCU
+// * 1x Arduino/ESP8266 NodeMCU, or 1x Mini D1 (pinouts will work with (and have been tested with) either arduino compatible unit.
 // * 1x 1602A LCD Display (2x16 chars). I'm using a 16-pin one - 14 pin versions should work with minor modifications.
 // * 1x IIC/I2C 1602A 2004 Adapter Plate for the 1602A screen.
 // * 1x 360deg Rotary Encoder
+// * Breadboard, cables, etc.
 //
 //  The 1602A LCD Display hooks into the IIC/I2C 1602A 2004 Adapter Plate, which has four pins:
-// * IIC(01) GND    - MCU ground
-// * IIC(02) VCC    - MCU 5V(VV)
-// * IIC(03) SDA/VO - MCU D4
-// * IIC(04) SCL/RS - MCU D3
+// * IIC(01) GND    - MCU ground - MD1 GND
+// * IIC(02) VCC    - MCU 5V(VV) - MD1 5V
+// * IIC(03) SDA/VO - MCU D4     - MD1 D4
+// * IIC(04) SCL/RS - MCU D3     - MD1 D3
 //  NB - some displays come with the IIC/I2C module already connected - if not, get one and solder it on. The screen is
 //       so much easier to deal with on the I2C interface.
 //
 //  The Rotary Encoder:
-// * RE(1) CLK  - MCU D1
-// * RE(2) DT   - MCU D2
-// * RE(3) SW   - MCU D2             // Buton functionality not yet implemented
-// * RE(4) +    - MCU 5V(VV)
-// * RE(5) GND  - MCU GND
+// * RE(1) CLK  - MCU D1     - MD1 D1
+// * RE(2) DT   - MCU D0     - MD1 D0
+// * RE(3) SW   - MCU D2     - MD1 D2             // Button functionality not yet implemented
+// * RE(4) +    - MCU 5V(VV) - MD1 5V
+// * RE(5) GND  - MCU GND    - MD1 GND 
 //
 //  The NodeMCU (remaining pins), if using external PSU:
 // * MCU VV    - PSU +5v
@@ -71,7 +72,7 @@ LiquidCrystal_I2C lcd(0x3F, 16, 2);
 
 
 //Define some vars for the Rotary Encoder (Channel Selector dial)
-  MD_REncoder rotEnc = MD_REncoder(D0, D1);                      //RotEnc's DR, CLK pins
+  MD_REncoder rotEnc = MD_REncoder(D0, D1);                      // RotEnc's DT, CLK pins
   unsigned long long lastRotEncAction = 0;                       // Contains millis since last Rotary Encoder was clicked or rotated
 
 
