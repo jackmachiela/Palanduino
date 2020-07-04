@@ -14,7 +14,7 @@
 // * Breadboard, cables, etc.
 //
 //  The 1602A LCD Display hooks into the IIC/I2C 1602A 2004 Adapter Plate, which has four pins:
-// * IIC(01) GND    - MCU ground - MD1 GND
+// * IIC(01) GND    - MCU G      - MD1 G
 // * IIC(02) VCC    - MCU 5V(VV) - MD1 5V
 // * IIC(03) SDA/VO - MCU D4     - MD1 D4
 // * IIC(04) SCL/RS - MCU D3     - MD1 D3
@@ -26,11 +26,11 @@
 // * RE(2) DT   - MCU D0     - MD1 D0
 // * RE(3) SW   - MCU D2     - MD1 D2             // Button functionality not yet implemented
 // * RE(4) +    - MCU 5V(VV) - MD1 5V
-// * RE(5) GND  - MCU GND    - MD1 GND 
+// * RE(5) GND  - MCU G      - MD1 G
 //
 //  The NodeMCU (remaining pins), if using external PSU:
-// * MCU VV    - PSU +5v
-// * MCU G     - PSU GND
+// * MCU VV    - MD1 5V    - PSU +5v
+// * MCU G     - MD1 G     - PSU GND
 //
 
 // Libraries to include:
