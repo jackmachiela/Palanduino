@@ -1,10 +1,11 @@
 // Palanduino - Small IoT device to display 2 lines of information off various servers
 //
-//           Written during Corona Lockdown 2020 by Jack Machiela <jack@pobox.com>
+//           Written during Corona Lockdown 2020 by Jack Machiela <jack@pobox.com> (c) 2020
 //           Inspiration from /u/cakeanalytics ( https://github.com/BetterWayElectronics/esp8266-corona-tracking-i2c-oled )
-//           Loads of programming tips from my son Josh Machiela <howdidthishappen@hesmyson.itaughthimeverythingiknow.com>
+//           Loads of programming tips from my son Josh <howdidthishappen@hesmyson.itaughthimeverythingiknow.com>
 //
-//           Channel credits: Corona Virus data API provided by Javier Aviles https://github.com/javieraviles
+//           Channel credits: Corona Virus data API provided by Javier Aviles https://github.com/javieraviles/covidAPI
+//                            Weather Data provided by https://openweathermap.org/
 //           
 //  Components:
 // * 1x Arduino/ESP8266 NodeMCU, or 1x Mini D1 (pinouts will work with (and have been tested with) either arduino compatible unit.
@@ -100,7 +101,7 @@ void setup() {                    //////////////////////////////////////////////
   // Restrict to 16 characters
   //         [ xxxxxxxxxxxxxxxx ]
     lineOne = "   Palanduino";
-    lineTwo = "======== v5.0 ==";
+    lineTwo = "================";
                  // v1.0 was initial basic code, one channel (NZ Covid-19 data update)
                  // v1.1 changed the main structure and smoothed it out, ready for multi-channel
                  // v1.2 - Add Rotary Encoder
