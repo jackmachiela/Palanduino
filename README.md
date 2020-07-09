@@ -1,6 +1,6 @@
 # Palanduino
 
-##(Arduino version of a Palantir)
+## (Arduino version of a Palantir)
 
 ![Palanduino, unboxed](https://raw.githubusercontent.com/jackmachiela/Palanduino/master/Palanduino%20Github%20Display.jpg)
 
