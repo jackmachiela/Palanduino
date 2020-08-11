@@ -8,7 +8,7 @@ This project creates a small IoT device that displays data off an internet servi
 
  - Channel 1 is basic time/date displays, adjusted for local timezones & daylight savings etc,
  - Channel 2 shows the current Covid-19 data for my country (New Zealand),
- - Channel 3 is a basic Weather Report from openweathermaps.org,
+ - Channel 3 is a basic Weather Report from openweathermap.org,
  - Channel 4 will be a weather forecast for the next 24 hours,
  - Channel 4 and 5 currently show a dummy millis() counter.
 
