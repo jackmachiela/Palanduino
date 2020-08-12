@@ -12,7 +12,7 @@ This project creates a small IoT device that displays data off an internet servi
  - Channel 4 will be a weather forecast for the next 24 hours,
  - Channel 4 and 5 currently show a dummy millis() counter.
 
-The hardware I'm using is a cheap Chinese NodeMCU Arduino ESP8266 unit. The code works also on a Mini D1 - the pinouts are compatible (I've tested with both).
+The hardware I'm using is a cheap Chinese Mini D1. The code works also on a NodeMCU Arduino ESP8266 unit - the pinouts are compatible (I've tested with both).
 
 Things to implement:
 
@@ -25,5 +25,5 @@ Things to implement:
 
 Full hardware documentation (parts used and pinouts) is contained within the code.
 
-![Palanduino, unboxed](https://raw.githubusercontent.com/jackmachiela/Palanduino/master/Images/Palanduino%20Unboxed.jpg)
+![Palanduino, unboxed](https://raw.githubusercontent.com/jackmachiela/Palanduino/master/Images/Palanduino%20unboxed.jpg)
 
