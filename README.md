@@ -2,7 +2,7 @@
 
 ## (Arduino version of a Palantir)
 
-![Palanduino, unboxed](https://raw.githubusercontent.com/jackmachiela/Palanduino/master/Palanduino%20Github%20Display.jpg)
+![Palanduino, boxed](https://raw.githubusercontent.com/jackmachiela/Palanduino/master/Images/Palanduino%20in%20wooden%20lasercut%20box.JPG)
 
 This project creates a small IoT device that displays data off an internet service. The rotary encoder allows you to "dial" in to any number of channels; Youtube followers, Facebook Likes, current weather, whatever.
 
@@ -24,3 +24,6 @@ Things to implement:
  - Change String to Char - less buggy
 
 Full hardware documentation (parts used and pinouts) is contained within the code.
+
+![Palanduino, unboxed](https://raw.githubusercontent.com/jackmachiela/Palanduino/master/Images/Palanduino%20Unboxed.jpg)
+
