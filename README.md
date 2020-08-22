@@ -22,8 +22,9 @@ Things to implement:
  - Warning system for previous step, via flashing warning on LCD, or separate flashing LED
  - Implement a Reset button if it crashes, or hangs on some server connects
  - Change String to Char - less buggy
+ - Change from openweathermap.org to wunderground.com. If owm.org can list Mangatainoka but not Dannevirke, I'm out. Wunderground FTW.
 
-Full hardware documentation (parts used and pinouts) is contained within the code.
+Full hardware documentation (parts used and pinouts) is currently contained within the code, but will be separated out at some stage.
 
 ![Palanduino, unboxed](https://raw.githubusercontent.com/jackmachiela/Palanduino/master/Images/Palanduino%20unboxed.jpg)
 

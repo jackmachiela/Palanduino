@@ -55,10 +55,9 @@ bool showColon = true;
 
 
 //open weather map api key                                   // Get a free account and set up an API key on: https://home.openweathermap.org/api_keys
-String weatherApiKey = "c3a8819c8940de27dd407d9e8b70a743";   // DO NOT PUBLISH THE KEY!!! (this is not actually my key, so don't bother)
+String weatherApiKey = "c3a8819c8940de27dd407d9e8b70a734";   // DO NOT PUBLISH THE KEY!!! (this is not actually my key, so don't bother)
 //the city you want the weather for
-String weatherLocation = "Wellington, NZ";                   // Make sure you have a valid city code - get it at http://www.openweathermap.org as well
-
+String weatherLocation = "Mangatainoka, NZ";                 // Make sure you have a valid city code - get it at http://www.openweathermap.org as well
 
 
 // initialise the LCD instance
@@ -281,13 +280,13 @@ void channelNZCovid19() {
         long totalTests = doc["totalTests"];
         int testsPerOneMillion = doc["testsPerOneMillion"];
 
-      lineOne = "Cov-19 - Sick:" + String(active);
+      lineOne = "Covid: Sick:" + String(active);
       lineTwo = "Dead:" + String(deaths) + " Ok:" + String(recovered);
 
     }
     else
     {
-      lineOne = "Cov-19 - Sick:??";
+      lineOne = "Covid: Sick:??";
       lineTwo = "Dead:?? Ok:????";
 
     }
