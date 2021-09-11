@@ -29,9 +29,9 @@
 // * RE(4) +    - MCU 5V(VV) - MD1 5V
 // * RE(5) GND  - MCU G      - MD1 G
 //
-//  The NodeMCU (remaining pins), if using external PSU:
-// * MCU VV    - MD1 5V    - PSU +5v
-// * MCU G     - MD1 G     - PSU GND
+//  The Mini D1 (remaining pins), if using external PSU:
+// * MD1 VV    - MD1 5V    - PSU +5v
+// * MD1 G     - MD1 G     - PSU GND
 //
 
 // Libraries to include:
@@ -55,7 +55,7 @@ bool showColon = true;
 
 
 //open weather map api key                                   // Get a free account and set up an API key on: https://home.openweathermap.org/api_keys
-String weatherApiKey = "02c3f39a43daf821b8737af642255a47";   // DO NOT PUBLISH THE KEY!!! (this is not actually my key, so don't bother)
+String weatherApiKey = "d6d87c4134612c3994b6b29278cf23d7";   // DO NOT PUBLISH THE KEY!!! (this is not actually my key, so don't bother)
 //the city you want the weather for
 String weatherLocation = "Mangatainoka, NZ";                 // Make sure you have a valid city code - get it at http://www.openweathermap.org as well
 
