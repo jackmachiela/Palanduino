@@ -6,7 +6,8 @@
 //
 //           Channel credits: Corona Virus data API provided by Javier Aviles https://github.com/javieraviles/covidAPI
 //                            Weather Data provided by https://openweathermap.org/
-//           
+//                                                                                                                                                 UPDATE: PALANDUINO IS NOT CURRENTLY WORKING DUE TO OUTDATED API'S
+//
 //  Components:
 // * 1x Arduino/ESP8266 NodeMCU, or 1x Mini D1 (pinouts will work with (and have been tested with) either arduino compatible unit.
 // * 1x 1602A LCD Display (2x16 chars). I'm using a 16-pin one - 14 pin versions should work with minor modifications.
@@ -35,13 +36,17 @@
 //
 
 // Libraries to include:
-#include <WiFiManager.h>         // Using the Arduino Library Manager, install "WifiManager by tzapu" - https://github.com/tzapu/WiFiManager
-#include <ESP8266HTTPClient.h>   // Once the connection to the internet is made, this library talks to actual servers
-#include <ezTime.h>              // Lib at https://github.com/ropg/ezTime, docs at https://awesomeopensource.com/project/ropg/ezTime
-#include <Wire.h>                // To use the I2C/IIC protocol to address the 1602A LCD display
-#include <LiquidCrystal_I2C.h>   // To talk to the actual 1602A LCD display
-#include <ArduinoJson.h>         // Used to talk to servers and parse their JSON data
-#include <MD_REncoder.h>         // Majic Designs Rotary Encoder Library    https://github.com/MajicDesigns/MD_REncoder
+#include <WiFiManager.h>          // Library "WifiManager by tablatronix" - Tested at v2.0.3-alpha (aka "WifiManager by tzapu" - lib at https://github.com/tzapu/WiFiManager)
+#include <ezTime.h>               // Library "EZTime by Rop Gonggrijp" - Tested at v0.8.3 (lib & docs at https://github.com/ropg/ezTime, docs at https://awesomeopensource.com/project/ropg/ezTime
+#include <TM1637Display.h>        // Library "TM1637 by Avishay Orpaz" - Tested at v1.2.0
+#include <ESP8266HTTPClient.h>   // Once the connection to the internet is made, this library talks to actual servers. Make sure "Board" is set to your ESP8266 board (NodeMCU, Mini D1, or whatever you're using)
+#include <Wire.h>                // Built-in library, to use the I2C/IIC protocol to address the 1602A LCD display
+#include <LiquidCrystal_I2C.h>   // Library "LiquidCrystal I2C by Marco Schwartz" - Tested at v1.1.2 (lib at https://github.com/johnrickman/LiquidCrystal_I2C - possibly outdated)
+                                 //    Lib used to talk to the actual 1602A LCD display.
+                                 //    TO DO: Library is outdated. Update to "LCD_I2C" by Blackhack.
+#include <ArduinoJson.h>         // Library "ArduinoJson by Benoit Blanchon" - Tested at v6.18.4 (lib & docs at https://arduinojson.org/?utm_source=meta&utm_medium=library.properties)
+                                 //    Lib used to talk to servers and parse their JSON data
+#include <MD_REncoder.h>         // Library "MD_REncoder by marco_c 8136821@gmail.com" - Tested at v1.0.1 (aka "Majic Designs Rotary Encoder" - lib & docs at https://github.com/MajicDesigns/MD_REncoder)
 
 ///////////////////////// Globals
 
